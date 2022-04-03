@@ -12,6 +12,7 @@ import (
 type serverConf struct {
     Host string `yaml:"host"`
     User string `yaml:"user"`
+    Command string `yaml:"command"`
 }
 
 func readConf(filename string) (*serverConf, error) {
@@ -34,12 +35,13 @@ func main() {
     if err != nil {
       log.Fatal(err)
     }
-    fmt.Printf("%v", c.User)
-    log.Println("Before SSH shell:")
+
     cmd := exec.Command("ssh", fmt.Sprintf("%v@%v", c.User, c.Host))
+    if (len(c.Command) > 0) {
+      cmd = exec.Command("ssh", fmt.Sprintf("%v@%v", c.User, c.Host), "-t", c.Command)
+    }
     cmd.Stdin = os.Stdin
     cmd.Stdout = os.Stdout
     cmd.Stderr = os.Stderr
     _ = cmd.Run() // TODO: add error checking
-    log.Println("After SSH shell")
 }

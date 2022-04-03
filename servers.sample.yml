@@ -1,2 +1,4 @@
 host: host
 user: user
+# optional command
+# command: htop
