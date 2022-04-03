@@ -19,7 +19,6 @@ func main() {
 		args = append(args, cfg.Command)
 	}
 
-	fmt.Println(args)
 	cmd := exec.Command("ssh", args...)
 
 	cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
