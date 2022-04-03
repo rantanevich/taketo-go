@@ -8,11 +8,12 @@ import (
 )
 
 type Config struct {
-	Host     string `yaml:"host"`
-	User     string `yaml:"user"`
-	Shell    string `yaml:"shell"`
-	Location string `yaml:"location"`
-	Command  string `yaml:"command"`
+	Host     string   `yaml:"host"`
+	User     string   `yaml:"user"`
+	Shell    string   `yaml:"shell"`
+	Location string   `yaml:"location"`
+	Command  string   `yaml:"command"`
+	Env      []string `yaml:"env"`
 }
 
 func readConf(fpath string) (*Config, error) {
@@ -33,6 +34,13 @@ func readConf(fpath string) (*Config, error) {
 	}
 
 	cmd := ""
+
+	if len(cfg.Env) > 0 {
+		for _, val := range cfg.Env {
+			cmd += fmt.Sprintf("export %s; ", val)
+		}
+	}
+
 	if len(cfg.Location) > 0 {
 		cmd += fmt.Sprintf("cd %s && ", cfg.Location)
 	}

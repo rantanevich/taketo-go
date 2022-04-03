@@ -4,3 +4,6 @@ user: user
 # command: htop
 # location: /data
 # shell: bash
+# env:
+# - VAR_1=abc
+# - VAR_2=def
