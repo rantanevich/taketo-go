@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -29,29 +30,35 @@ func readConf(fpath string) (*Config, error) {
 		return nil, err
 	}
 
-	if (len(cfg.Shell) == 0 && len(cfg.Location) > 0) {
-		cfg.Shell = "bash"
-	}
+	cfg.Command = buildCommand(cfg)
 
-	cmd := ""
+	fmt.Println(cfg.Command)
+
+	return cfg, nil
+}
+
+func buildCommand(cfg *Config) string {
+	var cmd []string
 
 	if len(cfg.Env) > 0 {
 		for _, val := range cfg.Env {
-			cmd += fmt.Sprintf("export %s; ", val)
+			cmd = append(cmd, "export "+val)
 		}
 	}
 
-	if len(cfg.Location) > 0 {
-		cmd += fmt.Sprintf("cd %s && ", cfg.Location)
+	if cfg.Location != "" {
+		cmd = append(cmd, "cd "+cfg.Location)
 	}
 
-	if len(cfg.Command) > 0 {
-		cmd += cfg.Command
-	} else if len(cfg.Shell) > 0 {
-		cmd += cfg.Shell
+	if cfg.Shell != "" || cfg.Command != "" {
+		if cfg.Shell != "" && cfg.Command != "" {
+			cmd = append(cmd, fmt.Sprintf("%s -c %q", cfg.Shell, cfg.Command))
+		} else if cfg.Shell != "" {
+			cmd = append(cmd, cfg.Shell)
+		} else {
+			cmd = append(cmd, cfg.Command)
+		}
 	}
 
-	cfg.Command = cmd
-
-	return cfg, nil
+	return strings.Join(cmd, " && ")
 }
