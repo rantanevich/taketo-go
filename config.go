@@ -29,9 +29,9 @@ func readConf(fpath string) (*Config, error) {
 		return nil, err
 	}
 
-	if len(cfg.Shell) == 0 {
-		cfg.Shell = "bash"
-	}
+ if (len(cfg.Shell) == 0 && len(cfg.Location) > 0) {
+	 cfg.Shell = "bash"
+ }
 
 	cmd := ""
 
@@ -42,12 +42,16 @@ func readConf(fpath string) (*Config, error) {
 	}
 
 	if len(cfg.Location) > 0 {
-		cmd += fmt.Sprintf("cd %s && ", cfg.Location)
+		if (len(cfg.Shell) > 0 || len(cfg.Command) > 0) {
+			cmd += fmt.Sprintf("cd %s && ", cfg.Location)
+		} else {
+			cmd += fmt.Sprintf("cd %s", cfg.Location)
+		}
 	}
 
 	if len(cfg.Command) > 0 {
 		cmd += cfg.Command
-	} else {
+	} else if len(cfg.Shell) > 0 {
 		cmd += cfg.Shell
 	}
 
