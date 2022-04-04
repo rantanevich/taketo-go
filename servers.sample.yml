@@ -2,3 +2,8 @@ host: host
 user: user
 # optional command
 # command: htop
+# location: /data
+# shell: bash
+# env:
+# - VAR_1=abc
+# - VAR_2=def

@@ -15,7 +15,8 @@ func main() {
 
 	args := []string{fmt.Sprintf("%v@%v", cfg.User, cfg.Host)}
 	if len(cfg.Command) > 0 {
-		args = append(args, fmt.Sprintf("-t %s", cfg.Command))
+		args = append(args, "-t")
+		args = append(args, cfg.Command)
 	}
 
 	cmd := exec.Command("ssh", args...)
