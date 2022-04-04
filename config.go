@@ -17,7 +17,7 @@ type Config struct {
 	Env      []string `yaml:"env"`
 }
 
-func readConf(fpath string) (*Config, error) {
+func readConf(fpath string, overrideCommand string) (*Config, error) {
 	buf, err := ioutil.ReadFile(fpath)
 	if err != nil {
 		return nil, err
@@ -28,6 +28,10 @@ func readConf(fpath string) (*Config, error) {
 	err = yaml.Unmarshal(buf, cfg)
 	if err != nil {
 		return nil, err
+	}
+
+	if overrideCommand != "" {
+		cfg.Command = overrideCommand
 	}
 
 	cfg.Command = buildCommand(cfg)
