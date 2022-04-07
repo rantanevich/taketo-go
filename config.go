@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
+	"errors"
 
 	"gopkg.in/yaml.v3"
 )
 
-type Config struct {
+type Server struct {
+	Name     string   `yaml:"name"`
+	Alias    string   `yaml:"alias"`
 	Host     string   `yaml:"host"`
 	User     string   `yaml:"user"`
 	Shell    string   `yaml:"shell"`
@@ -17,7 +20,36 @@ type Config struct {
 	Env      []string `yaml:"env"`
 }
 
-func readConf(fpath string, overrideCommand string) (*Config, error) {
+type Environment struct {
+	Name       string    `yaml:"name"`
+	Servers    []*Server `yaml:"servers"`
+}
+
+type Project struct {
+	Name         string         `yaml:"name"`
+	Environments []*Environment `yaml:"environments"`
+}
+
+type Config struct {
+	Projects []*Project `yaml:"projects"`
+}
+
+func findServer(projects []*Project, serverAlias string) *Server {
+	for _, project := range projects {
+		for _, environment := range project.Environments {
+			for _, server := range environment.Servers {
+				if server.Alias == serverAlias {
+					return server;
+				}
+			}
+		}
+	}
+
+	Exit(errors.New(fmt.Sprintf("Server not found for alias: %v", serverAlias)))
+	return nil;
+}
+
+func readConf(fpath, serverAlias, overrideCommand string) (*Server, error) {
 	buf, err := ioutil.ReadFile(fpath)
 	if err != nil {
 		return nil, err
@@ -30,18 +62,18 @@ func readConf(fpath string, overrideCommand string) (*Config, error) {
 		return nil, err
 	}
 
+	serverConfig := findServer(cfg.Projects, serverAlias)
+
 	if overrideCommand != "" {
-		cfg.Command = overrideCommand
+		serverConfig.Command = overrideCommand
 	}
 
-	cfg.Command = buildCommand(cfg)
+	serverConfig.Command = buildCommand(serverConfig)
 
-	fmt.Println(cfg.Command)
-
-	return cfg, nil
+	return serverConfig, nil
 }
 
-func buildCommand(cfg *Config) string {
+func buildCommand(cfg *Server) string {
 	var cmd []string
 
 	if len(cfg.Env) > 0 {

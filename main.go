@@ -10,8 +10,7 @@ import (
 	"github.com/fatih/color"
 )
 
-
-func exit(err error) {
+func Exit(err error) {
 	color.Set(color.FgRed)
 	log.Fatalln(err)
 	os.Exit(1)
@@ -19,7 +18,7 @@ func exit(err error) {
 
 func parseArguments() (string, string) {
 	if (len(os.Args) < 2) {
-		exit(errors.New("Expected at least one argument as server"))
+		Exit(errors.New("Expected at least one argument as server"))
 	}
 
 	var overrideCommand string
@@ -37,12 +36,11 @@ func parseArguments() (string, string) {
 func main() {
 	log.SetFlags(0)
 
-	server, overrideCommand := parseArguments()
-	fmt.Println("server to run: ", server)
+	serverAlias, overrideCommand := parseArguments()
 
-	cfg, err := readConf("./servers.yml", overrideCommand)
+	cfg, err := readConf("./servers.yml", serverAlias, overrideCommand)
 	if err != nil {
-		exit(err)
+		Exit(err)
 	}
 
 	args := []string{fmt.Sprintf("%v@%v", cfg.User, cfg.Host)}
