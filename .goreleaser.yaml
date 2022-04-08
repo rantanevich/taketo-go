@@ -20,7 +20,8 @@ build:
   - 7
 
 archives:
-- format: binary
+- name_template: "taketo-{{ .Os }}-{{ .Arch }}"
+  format: binary
 
 checksum:
   name_template: checksums.txt
